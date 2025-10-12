@@ -1,6 +1,6 @@
-# FlowScript (FS) - The Concise Calculus programming language
+# ConciseFlow (CFL) - The Concise Calculus programming language
 
-### FlowScript (FS) is a Hyper-Concise and Dataflow-Oriented language, born from the "frustration" of repetitive operations in imperative programming.
+### ConciseFlow (CFL) is a Hyper-Concise and Dataflow-Oriented language, born from the "frustration" of repetitive operations in imperative programming.
 
 ## Features
 
@@ -13,8 +13,8 @@
 ## Installation
 
 ```bash
-git clone https://github.com/qdyg-vn/FlowScript.git
-cd FlowScript
+git clone https://github.com/qdyg-vn/ConciseFlow
+cd ConciseFlow
 # Pure Python - no external dependencies
 ```
 
@@ -50,19 +50,19 @@ python main.py
 
 ## Core Components
 
-**1.** Lexer - Tokenization
+**1. Lexer - Tokenization**
 
 Converts source code to tokens
 
 Recognizes: numbers, operators, parentheses
 
-**2.** Parser - AST Construction
+**2. Parser - AST Construction**
 
 Builds Abstract Syntax Tree using recursive descent
 
 Handles nested expressions naturally
 
-**3.** Executor - Dataflow Execution
+**3. Executor - Dataflow Execution**
 
 Evaluates expressions in dataflow order
 
@@ -70,5 +70,5 @@ Applies operations as data becomes available
 
 ## Philosophy
 
-FlowScript eliminates imperative boilerplate by making dataflow the primary concern. 
+ConciseFlow eliminates imperative boilerplate by making dataflow the primary concern. 
 Instead of worrying about variables and assignment, you focus on how data transforms through operations.
