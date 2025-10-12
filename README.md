@@ -1,6 +1,6 @@
-# FlowScript (CFL) - The Concise Calculus programming language
+# FlowScript (FS) - The Concise Calculus programming language
 
-### FlowScript (CFL) is a Hyper-Concise and Dataflow-Oriented language, born from the "frustration" of repetitive operations in imperative programming.
+### FlowScript (FS) is a Hyper-Concise and Dataflow-Oriented language, born from the "frustration" of repetitive operations in imperative programming.
 
 ## Features
 
