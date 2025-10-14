@@ -22,6 +22,7 @@ class Executor:
     def __init__(self):
         self.operation = Operation()
         self.env = Environment()
+        self.builtin_functions = BuiltinsFunction()
 
     def execute(self, ast: list) -> list:
         results = []
@@ -30,15 +31,36 @@ class Executor:
         return results
 
     def execute_command(self, ast: list) -> int | float:
-        values = []
+        values = [[]]
+        index = 0
         operator = ''
         for current in ast:
             if current in ('+', '-', '*', '/'):
                 operator = current
             elif isinstance(current, list):
-                values.append(self.execute_command(current))
+                values[index].append(self.execute_command(current))
             elif isinstance(current, str):
-                values.append(self.env.lookup(current))
+                if current == '->':
+                    index += 1
+                    values.append([])
+                else:
+                    if index:
+                        values[index].append(current)
+                    else:
+                        values[index].append(self.env.lookup(current))
             else:
-                values.append(current)
-        return self.operation.calculate(operator, values)
+                values[index].append(current)
+        if index:
+            return self.execute_arrow(operator, values)
+        else:
+            return self.operation.calculate(operator, values[0])
+
+    def execute_arrow(self, operator: str, values: list) -> int | float:
+        result = self.operation.calculate(operator, values[0])
+        for value in values[1:]:
+            if value[0] == 'print':
+                print("Hàm print built test +(a,b->print): ", end='')
+                self.builtin_functions.print(result)
+            else:
+                self.env.add_variable(value[0], result)
+        return result

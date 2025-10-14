@@ -22,23 +22,33 @@ class Parser:
 
     def __init__(self, tokens):
         self.tokens = tokens
+        self.current_token = None
+        self.pos = -1
+
+    def advance(self):
+        self.pos += 1
+        self.current_token = self.tokens[self.pos] if self.pos < len(self.tokens) else None
+
+    def peek(self):
+        return self.tokens[self.pos + 1] if self.pos + 1 < len(self.tokens) else None
 
     def parse(self):
-        expressions = []
-        while self.tokens:
+        expressions = [self.parse_expression()]
+        while self.pos < len(self.tokens) - 1:
             expressions.append(self.parse_expression())
         return expressions
 
     def parse_expression(self) -> list:
-        token = self.tokens.pop(0)
+        self.advance()
         function = [TokenType.TT_PLUS.value, TokenType.TT_MINUS.value, TokenType.TT_MUL.value, TokenType.TT_DIV.value]
-        if token.type in function:
-            expr = [token.value]
-            if self.tokens.pop(0).type != TokenType.TT_LPAREN.value:
-                raise SyntaxError('Too many function')
-            while self.tokens[0].type != TokenType.TT_RPAREN.value:
+        if self.current_token is not None and self.current_token.type in function:
+            expr = [self.current_token.value]
+            self.advance()
+            if self.current_token is not None and self.current_token.type != TokenType.TT_LPAREN.value:
+                raise SyntaxError(f"Only expected '(' before {expr[0]}")
+            while self.peek().type != TokenType.TT_RPAREN.value:
                 expr.append(self.parse_expression())
-            self.tokens.pop(0)
+            self.advance()
             return expr
         else:
-            return token.value
+            return self.current_token.value

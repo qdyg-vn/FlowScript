@@ -1,3 +1,4 @@
+from builtins_fscc import BuiltinsFunction
 from token import Token, TokenType
 
 
@@ -24,18 +25,11 @@ class Lexer:
     """
 
     def __init__(self, code):
+        self.builtins = BuiltinsFunction()
         self.code = code
         self.pos = -1
         self.current_char = None
-        self.advance()
-
-    def advance(self):
-        self.pos += 1
-        self.current_char = self.code[self.pos] if self.pos < len(self.code) else None
-
-    def make_tokens(self) -> list[Token]:
-        tokens = []
-        token_map = {
+        self.token_map = {
             '+': TokenType.TT_PLUS.value,
             '-': TokenType.TT_MINUS.value,
             '*': TokenType.TT_MUL.value,
@@ -44,9 +38,31 @@ class Lexer:
             ')': TokenType.TT_RPAREN.value,
             ';': TokenType.TT_SEMICOLON.value
         }
+        self.character_start_token = {
+            '-': TokenType.TT_MINUS.value
+        }
+        self.token_map_multi_char = {
+            '->': TokenType.TT_ARROW.value,
+        }
+        self.advance()
+
+    def advance(self):
+        self.pos += 1
+        self.current_char = self.code[self.pos] if self.pos < len(self.code) else None
+
+    def peek(self):
+        if self.pos + 1 < len(self.code):
+            return self.code[self.pos + 1]
+        return None
+
+    def make_tokens(self) -> list[Token]:
+        tokens = []
         while self.current_char is not None:
-            if self.current_char in token_map:
-                tokens.append(Token(token_map[self.current_char], self.current_char))
+            if self.current_char in self.character_start_token:
+                type_token, current_token = self.make_token_chars()
+                tokens.append(Token(type_token, current_token))
+            if self.current_char in self.token_map:
+                tokens.append(Token(self.token_map[self.current_char], self.current_char))
                 self.advance()
             elif self.current_char in TokenType.ALPHABET_DOWN.value + TokenType.ALPHABET_UP.value:
                 tokens.append(self.make_string())
@@ -57,6 +73,17 @@ class Lexer:
             else:
                 raise SyntaxError(self.current_char)
         return tokens
+
+    def make_token_chars(self):
+        token = self.current_char + self.peek()
+        if token in self.token_map_multi_char:
+            self.advance()
+            self.advance()
+            return [self.token_map_multi_char[token], token]
+        else:
+            token = self.current_char
+            self.advance()
+            return [self.token_map[token], token]
 
     def make_number(self) -> Token:
         number = ''
@@ -80,4 +107,6 @@ class Lexer:
         while self.current_char is not None and self.current_char in TokenType.ALPHABET_DOWN.value + TokenType.ALPHABET_UP.value:
             string += self.current_char
             self.advance()
+        if string in self.builtins.functions:
+            return Token(TokenType.TT_FUNCTION, string)
         return Token(TokenType.TT_STRING, string)

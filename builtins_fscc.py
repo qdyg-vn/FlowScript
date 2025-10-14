@@ -1,7 +1,3 @@
-##############################
-# CALCULATOR
-##############################
-
 class Operation:
     """
     Arithmetic helper that maps '+', '-', '*', '/' to operations on a sequence of numbers.
@@ -74,3 +70,16 @@ class Operation:
                     raise ZeroDivisionError("Division by zero")
                 result /= number
         return result
+
+class BuiltinsFunction:
+    def __init__(self):
+        self.functions = {
+            'print': self.print,
+        }
+
+    def execute_function(self, function, *args):
+        if function in self.functions:
+            self.functions[function](*args)
+
+    def print(self, *args):
+        print(*args)

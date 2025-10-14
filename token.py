@@ -20,7 +20,7 @@ class TokenType(Enum):
     TT_COMMA = 'COMMA'
     TT_UNDERSCORE = 'UNDERSCORE'
     TT_ARROW = 'ARROW'
-
+    TT_FUNCTION = 'FUNCTION'
 
 class Token:
     """

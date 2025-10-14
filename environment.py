@@ -4,12 +4,13 @@
 
 class Environment:
     def __init__(self):
-        self.variables = {'aBz': 110}
-        self.variables_private = {}
+        self.variables = {'global': {}}
 
-    def lookup(self, variable: str, parent=None) -> int | float:
-        if variable in self.variables:
-            return self.variables[variable]
-        elif parent in self.variables_private and variable in self.variables_private[parent]:
-            return self.variables_private[parent][variable]
+    def add_variable(self, name, value, parent='global'):
+        self.variables[parent][name] = value
+        print(self.variables)
+
+    def lookup(self, variable: str, parent='global') -> int | float:
+        if parent in self.variables and variable in self.variables[parent]:
+            return self.variables[parent][variable]
         raise KeyError(f"Variable '{variable}' not found in environment")
