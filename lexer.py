@@ -1,5 +1,5 @@
 from builtins_fscc import BuiltinsFunction
-from token import Token, TokenType
+from token_fscc import Token, TokenType
 
 
 class Lexer:
@@ -98,13 +98,13 @@ class Lexer:
                 number += self.current_char
             self.advance()
         if has_dot:
-            return Token(TokenType.TT_FLOAT, float(number))
+            return Token(TokenType.TT_FLOAT.value, float(number))
         else:
-            return Token(TokenType.TT_INT, int(number))
+            return Token(TokenType.TT_INT.value, int(number))
 
     def make_string(self) -> Token:
         string = ''
-        while self.current_char is not None and self.current_char in TokenType.ALPHABET_DOWN.value + TokenType.ALPHABET_UP.value:
+        while self.current_char is not None and self.current_char in TokenType.ALPHABET_DOWN.value + TokenType.ALPHABET_UP.value + '_':
             string += self.current_char
             self.advance()
         if string in self.builtins.functions:

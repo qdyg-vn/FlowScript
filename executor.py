@@ -1,4 +1,5 @@
 from builtins_fscc import *
+from concurrent.futures import ProcessPoolExecutor
 from environment import Environment
 
 
@@ -59,7 +60,6 @@ class Executor:
         result = self.operation.calculate(operator, values[0])
         for value in values[1:]:
             if value[0] == 'print':
-                print("Hàm print built test +(a,b->print): ", end='')
                 self.builtin_functions.print(result)
             else:
                 self.env.add_variable(value[0], result)

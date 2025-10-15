@@ -1,4 +1,4 @@
-from token import TokenType
+from token_fscc import TokenType
 
 
 class Parser:
@@ -24,6 +24,8 @@ class Parser:
         self.tokens = tokens
         self.current_token = None
         self.pos = -1
+        self.function_type = [TokenType.TT_PLUS.value, TokenType.TT_MINUS.value, TokenType.TT_MUL.value, TokenType.TT_DIV.value]
+        self.operator = None
 
     def advance(self):
         self.pos += 1
@@ -34,20 +36,29 @@ class Parser:
 
     def parse(self):
         expressions = [self.parse_expression()]
-        while self.pos < len(self.tokens) - 1:
-            expressions.append(self.parse_expression())
+        while self.pos < len(self.tokens) - 2:
+            if self.operator:
+                expressions.append(self.parse_expression(self.operator))
+            else:
+                expressions.append(self.parse_expression())
         return expressions
 
-    def parse_expression(self) -> list:
+    def parse_expression(self, operator:str = None) -> list:
         self.advance()
-        function = [TokenType.TT_PLUS.value, TokenType.TT_MINUS.value, TokenType.TT_MUL.value, TokenType.TT_DIV.value]
-        if self.current_token is not None and self.current_token.type in function:
-            expr = [self.current_token.value]
-            self.advance()
-            if self.current_token is not None and self.current_token.type != TokenType.TT_LPAREN.value:
-                raise SyntaxError(f"Only expected '(' before {expr[0]}")
-            while self.peek().type != TokenType.TT_RPAREN.value:
+        if self.current_token is not None and (operator or self.current_token.type in self.function_type):
+            expr = []
+            if operator:
+                expr.append(operator)
+                expr.append(self.current_token.value)
+            else:
+                operator = self.current_token.value
+                self.advance()
+                if self.current_token is not None and self.current_token.type != TokenType.TT_LPAREN.value:
+                    raise SyntaxError(f"Only expected '('")
+                expr = [operator]
+            while self.peek().type not in (TokenType.TT_RPAREN.value, TokenType.TT_SEMICOLON.value):
                 expr.append(self.parse_expression())
+            self.operator = operator if self.peek().type == TokenType.TT_SEMICOLON.value else None
             self.advance()
             return expr
         else:
