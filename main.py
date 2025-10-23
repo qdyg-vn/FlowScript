@@ -1,6 +1,7 @@
 import sys
 
 from executor import Executor
+from transformer_ast import Transformer
 from lexer import Lexer
 from parser import Parser
 from utils import reader
@@ -13,14 +14,17 @@ def main():
         raise Exception("No input file specified.")
     lexer = Lexer(code)
     tokens = lexer.make_tokens()
-    print(f"Lexer: {tokens}")
+    print("Lexer: ", tokens)
     parser = Parser(tokens)
     ast = parser.parse()
-    print(f"Parser: {ast}")
+    print("Parser: ", ast)
+    transformer = Transformer()
+    ast_transformed = transformer.transform(ast)
+    print("Transform: ", ast_transformed)
     executor = Executor()
-    result = executor.execute(ast)
+    result = executor.execute(ast_transformed)
     return result
 
-
 if __name__ == '__main__':
-    print(f"Results: {main()}")
+    result = main()
+    print(result)

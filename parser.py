@@ -37,29 +37,26 @@ class Parser:
     def parse(self):
         expressions = [self.parse_expression()]
         while self.pos < len(self.tokens) - 2:
-            if self.operator:
-                expressions.append(self.parse_expression(self.operator))
-            else:
-                expressions.append(self.parse_expression())
+            expressions.append(self.parse_expression())
         return expressions
 
-    def parse_expression(self, operator:str = None) -> list:
+    def parse_expression(self) -> list:
         self.advance()
-        if self.current_token is not None and (operator or self.current_token.type in self.function_type):
-            expr = []
-            if operator:
-                expr.append(operator)
-                expr.append(self.current_token.value)
-            else:
-                operator = self.current_token.value
-                self.advance()
-                if self.current_token is not None and self.current_token.type != TokenType.TT_LPAREN.value:
-                    raise SyntaxError(f"Only expected '('")
-                expr = [operator]
-            while self.peek().type not in (TokenType.TT_RPAREN.value, TokenType.TT_SEMICOLON.value):
-                expr.append(self.parse_expression())
-            self.operator = operator if self.peek().type == TokenType.TT_SEMICOLON.value else None
+        if self.current_token is not None and self.current_token.type in self.function_type:
+            operator = self.current_token.value
+            expr = [[operator]]
+            index = 0
             self.advance()
-            return expr
+            if self.current_token is not None and self.current_token.type != TokenType.TT_LPAREN.value:
+                raise SyntaxError(f"Only expected '(' before {expr[0]}")
+            while self.peek().type != TokenType.TT_RPAREN.value:
+                if self.peek().type == TokenType.TT_SEMICOLON.value:
+                    expr.append([operator])
+                    index += 1
+                    self.advance()
+                token = self.parse_expression()
+                expr[index].append(token)
+            self.advance()
+            return expr if index else expr[0]
         else:
             return self.current_token.value
