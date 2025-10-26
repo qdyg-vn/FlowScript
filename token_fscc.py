@@ -1,7 +1,36 @@
 from enum import Enum
 
 
+class CharacterSets(Enum):
+    """
+    Enumeration of common character sets.
+
+    Members:
+    - ALPHABET_DOWN: Lowercase English letters a–z.
+    - ALPHABET_UP: Uppercase English letters A–Z.
+    - DIGIT: Decimal digits 0–9.
+
+    Use to reference predefined character groups for validation, parsing, or token generation.
+    """
+
+    ALPHABET_DOWN = 'abcdefghijklmnopqrstuvwxyz'
+    ALPHABET_UP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    DIGIT = '0123456789'
+
+
 class TokenType(Enum):
+    """
+    Enumeration of token categories used by the tokenizer/parser.
+
+    Members include character sets for letters and digits, and symbolic tokens
+    for literals, punctuation, operators, delimiters, and identifiers, such as:
+    - ALPHABET_DOWN/ALPHABET_UP/DIGIT: character classes
+    - TT_INT, TT_FLOAT, TT_STRING, TT_BOOLEAN, TT_NONE: literal types
+    - TT_LPAREN, TT_RPAREN, TT_SEMICOLON, TT_COMMA, TT_UNDERSCORE: delimiters
+    - TT_PLUS, TT_MINUS, TT_MUL, TT_DIV, TT_ARROW: operators
+    - TT_FUNCTION, TT_IDENTIFIER: keywords and names
+    """
+
     ALPHABET_DOWN = 'abcdefghijklmnopqrstuvwxyz'
     ALPHABET_UP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     DIGIT = '0123456789'
@@ -21,6 +50,23 @@ class TokenType(Enum):
     TT_UNDERSCORE = 'UNDERSCORE'
     TT_ARROW = 'ARROW'
     TT_FUNCTION = 'FUNCTION'
+    TT_IDENTIFIER = 'IDENTIFIER'
+
+
+class NodeType(Enum):
+    """
+    Enumeration of node types.
+
+    Members:
+    - MULTI_EXPR: Node aggregating multiple expressions.
+    - TASK_NODE: Node representing an executable task.
+    - SCALAR: Node holding a scalar/atomic value.
+    """
+
+    MULTI_EXPR = 1
+    TASK_NODE = 2
+    SCALAR = 3
+
 
 class Token:
     """

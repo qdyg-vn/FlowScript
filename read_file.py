@@ -1,4 +1,4 @@
-def reader(file):
+def reader(file: str) -> str:
     """
     Read and return the contents of a UTF-8 encoded text file.
 
@@ -13,7 +13,10 @@ def reader(file):
         UnicodeDecodeError: If the file cannot be decoded with UTF-8.
         Exception: For any other unexpected errors during file reading.
     """
+
     try:
+        if '.fscc' not in file:
+            raise ValueError('File must have ".fscc" extension.')
         with open(file, 'r', encoding='utf-8') as f:
             code = f.read()
         return code

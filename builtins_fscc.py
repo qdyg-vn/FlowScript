@@ -1,23 +1,28 @@
 class Operation:
     """
-    Arithmetic helper that maps '+', '-', '*', '/' to operations on a sequence of numbers.
+    Utility class that applies basic arithmetic to a sequence of numbers.
 
-    Use calculate(operator, numbers) to apply the chosen operation left-to-right:
+    Supports '+', '-', '*', and '/' mapped to left-to-right operations:
     - '+' sums all numbers.
-    - '-' subtracts each subsequent number from the first.
-    - '*' multiplies all numbers (returns 0 for an empty sequence).
-    - '/' divides sequentially; raises on division by zero.
+    - '-' subtracts subsequent numbers from the first (empty list -> 0).
+    - '*' multiplies all numbers (empty list -> 1; short-circuits on 0).
+    - '/' divides sequentially (empty list -> 0; raises on division by zero).
+
+    Methods:
+        calculate(operator, numbers): Validate operator and execute the mapped operation.
 
     Args:
         operator (str): One of '+', '-', '*', '/'.
-        numbers (Sequence[int | float]): Numbers to process in order.
+        numbers (list[int | float]): Numbers processed in order.
 
     Returns:
-        int | float: Result of the requested operation. For an empty sequence, 0 is returned.
+        int | float: Result of the operation.
 
     Raises:
-        Exception: If the operator is invalid or division by zero occurs.
+        ValueError: If the operator is not supported.
+        ZeroDivisionError: If division by zero occurs.
     """
+
     __slots__ = ['calculator']
 
     def __init__(self):

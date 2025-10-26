@@ -1,22 +1,32 @@
 from builtins_fscc import *
 from environment import Environment
+from token_fscc import NodeType
 
 
 class Executor:
     """
-    Evaluate list-based arithmetic expressions using Operation.
+    Executes an AST for a simple expression language with arithmetic, variable assignment, and built-ins.
 
-    Parses a list where one entry is an operator ('+', '-', '*', '/') and the rest are numeric operands or nested subexpressions. Nested lists are evaluated recursively, and operands are applied left-to-right via Operation.calculate.
+    Attributes:
+        operation (Operation): Arithmetic dispatcher for '+', '-', '*', '/'.
+        env (Environment): Storage for variables with scoped lookup.
+        builtin_functions (BuiltinsFunction): Registry for callable built-in functions.
 
-    Args:
-        ast (list): Expression containing one operator and its operands, which may include nested lists.
-
-    Returns:
-        int | float: The evaluated result.
-
-    Raises:
-        ValueError: If no valid operator is present.
-        ZeroDivisionError: If a division by zero occurs.
+    Methods:
+        execute(ast) -> list:
+            Walks the top-level AST, executing each command node and flattening results.
+        execute_single_command(ast) -> int | float | list:
+            Evaluates a single node:
+            - MULTI_EXPR: evaluates subexpressions into a list.
+            - TASK_NODE: evaluates nested tasks recursively.
+            - SCALAR: resolves literals, identifiers (via env), and arrow separators.
+            Applies the operator to accumulated values; routes arrow chains to execute_arrow.
+        execute_arrow(operator: str, values: list) -> int | float:
+            Applies the operator to the left-hand values, then processes each subsequent
+            arrow target:
+            - 'print' emits the result via built-ins.
+            - otherwise stores the result in env under the given name.
+            Returns the final computed result.
     """
 
     def __init__(self):
@@ -24,32 +34,39 @@ class Executor:
         self.env = Environment()
         self.builtin_functions = BuiltinsFunction()
 
-    def execute(self, ast: list) -> list:
-        results = []
-        for command in ast:
-            results.append(self.execute_command(command))
-        return results
+    def execute(self, ast) -> list:
+        all_results = []
+        for command in ast.args:
+            results = self.execute_single_command(command)
+            if isinstance(results, list):
+                all_results.extend(results)
+            else:
+                all_results.append(results)
+        return all_results
 
-    def execute_command(self, ast: list) -> int | float:
+    def execute_single_command(self, ast) -> int | float | list:
         values = [[]]
         index = 0
-        operator = ''
-        for current in ast:
-            if current in ('+', '-', '*', '/'):
-                operator = current
-            elif isinstance(current, list):
-                values[index].append(self.execute_command(current))
-            elif isinstance(current, str):
-                if current == '->':
-                    index += 1
-                    values.append([])
-                else:
-                    if index:
-                        values[index].append(current)
+        if ast.type == NodeType.MULTI_EXPR.value:
+            for subexpression in ast.args:
+                values[index].append(self.execute_single_command(subexpression))
+            return values[0]
+        operator = ast.command.args if ast.command else None
+        for current in ast.args:
+            if current.type == NodeType.TASK_NODE.value:
+                values[index].append(self.execute_single_command(current))
+            elif current.type == NodeType.SCALAR.value:
+                if isinstance(current.args, str):
+                    if current.args == '->':
+                        index += 1
+                        values.append([])
                     else:
-                        values[index].append(self.env.lookup(current))
-            else:
-                values[index].append(current)
+                        if index:
+                            values[index].append(current.args)
+                        else:
+                            values[index].append(self.env.lookup(current.args))
+                else:
+                    values[index].append(current.args)
         if index:
             return self.execute_arrow(operator, values)
         else:

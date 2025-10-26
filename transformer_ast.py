@@ -1,59 +1,53 @@
 import copy
 
+from node_fscc import Node
+from token_fscc import NodeType
+
+
 class Transformer:
     """
-    AST transformation utilities for expanding nested list expressions.
+    AST transformer that expands task and multi-expression nodes into all combinations.
 
-    The Transformer class provides:
-    - insert_ast(ast, index, item): Return a deep-copied AST with item inserted at index.
-    - have_list(ast): Check whether any element of ast is a list.
-    - multi_expr(expr, ast, index, result): Expand combinations when child transformations yield lists.
-    - transform(ast): Recursively transform an AST by expanding nested list nodes; returns either
-    the original ast, a single transformed branch, or a list of expanded variants.
+    Methods:
+    - replace_node_in_ast(ast, index, item): Deep-copies ast and replaces args[index] with item.
+    - multi_expression(expr, ast, index, result): Expands a MULTI_EXPR child, appending substituted ASTs to result. If the child yields TASK_NODE results, each is expanded individually.
+    - transform_single(ast): Walks a single AST's args. For TASK_NODE children, recurses; for MULTI_EXPR, delegates to multi_expr. Returns a MULTI_EXPR node of expansions or the original ast if no changes.
+    - transform(ast): Batch variant for an iterable of ASTs, flattening per-item transform outputs into a single MULTI_EXPR node.
 
-    Args:
-        ast: A list-based AST to inspect or transform.
-        index: Position in ast where a child item should be placed.
-        item: Replacement element for insertion.
-        expr: A list expression (subtree) potentially containing nested lists.
-        result: Accumulator list for collecting expanded AST variants.
-
-    Returns:
-        For insert_ast: A new AST with the specified insertion.
-        For have_list: True if any element is a list, else False.
-        For multi_expr: None; results appended to result.
-        For transform: Either the original ast, a single transformed AST, or a list of transformed ASTs.
+    Notes:
+    - Uses copy.deepcopy to avoid mutating the original ASTs.
+    - Relies on Node and NodeType contracts where MULTI_EXPR aggregates expansions and TASK_NODE may expand into multiple alternatives.
     """
-    def insert_ast(self, ast, index, item):
+
+    def replace_node_in_ast(self, ast: Node, index: int, node: Node):
         ast = copy.deepcopy(ast)
-        ast[index] = item
+        ast.args[index] = node
         return ast
 
-    def have_list(self, ast):
-        for current in ast:
-            if isinstance(current, list):
-                return True
-        return False
-
-    def multi_expr(self, expr, ast, index, result):
-        for item in expr:
-            child_results = self.transform(item)
-            if isinstance(child_results[0], list):
-                for expand_sub in child_results:
-                    result.append(self.insert_ast(ast, index, expand_sub))
+    def multi_expression(self, expression: Node, ast: Node, index: int, result: list):
+        for single_expression in expression.args:
+            child_results = self.transform_single(single_expression)
+            if child_results.args[0].type == NodeType.TASK_NODE.value:
+                for single_child_result in child_results.args:
+                    result.append(self.replace_node_in_ast(ast, index, single_child_result))
             else:
-                result.append(self.insert_ast(ast, index, item))
+                result.append(self.replace_node_in_ast(ast, index, child_results))
 
-    def transform(self, ast):
+    def transform_single(self, ast: Node):
         result = []
-        for index,expr in enumerate(ast):
-            if isinstance(expr,list):
-                if self.have_list(expr):
-                    if isinstance(expr[0], list):
-                        self.multi_expr(expr, ast, index, result)
-                    else:
-                        result.append(self.transform(expr))
+        for index, node in enumerate(ast.args):
+            if node.type == NodeType.TASK_NODE.value:
+                result.append(self.transform_single(node))
+            elif node.type == NodeType.MULTI_EXPR.value:
+                self.multi_expression(node, ast, index, result)
         if result:
-            return result if len(result) > 1 else result[0]
+            return Node(NodeType.MULTI_EXPR.value, result)
         else:
             return ast
+
+    def transform(self, ast: list):
+        results = []
+        for expression in ast:
+            for result in self.transform_single(expression).args:
+                results.append(result)
+        return Node(NodeType.MULTI_EXPR.value, results)
