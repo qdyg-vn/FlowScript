@@ -9,21 +9,23 @@ from read_file import reader
 
 def main():
     """
-    Entry point that compiles and runs a .fscc program.
+    Entry point for compiling and executing a .fscc program.
 
-    Steps:
-    - Reads the input file path from sys.argv[1] via reader; raises if missing.
-    - Lexes source into tokens (Lexer.make_tokens) and logs them.
-    - Parses tokens into an AST (Parser.parse) and logs it.
-    - Transforms the AST for task/multi-expression expansion (Transformer.transform_) and logs it.
-    - Executes the transformed AST (Executor.execute) and returns the resulting list.
+    Workflow:
+    - Reads the source path from sys.argv[1] using reader; errors if absent.
+    - Tokenizes with Lexer.make_tokens and prints the token stream.
+    - Parses tokens into an AST via Parser.parse and prints it.
+    - Transforms the AST for MULTI_EXPR/TASK_NODE expansion with Transformer.transform and prints it.
+    - Executes with Executor.execute and returns a flattened list of results.
 
     Returns:
-        list: Flattened execution results from the program.
+        list: Collected execution results.
 
     Raises:
-        Exception: If no input file is specified.
-        FileNotFoundError, UnicodeDecodeError, SyntaxError: Propagated from underlying stages.
+        Exception: When no input file is provided.
+        FileNotFoundError: If the file path is invalid.
+        UnicodeDecodeError: If the file is not valid UTF-8.
+        SyntaxError: For lexical or parsing issues surfaced during processing.
     """
 
     try:

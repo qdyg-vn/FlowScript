@@ -62,14 +62,14 @@ class Lexer:
         self.position += 1
         self.current_character = self.code[self.position] if self.position < len(self.code) else None
 
-    def peek(self, position: int = 1) -> str | None:
-        if self.position + position < len(self.code):
-            return self.code[self.position + position]
+    def peek(self, character_ahead: int = 1) -> str | None:
+        if self.position + character_ahead < len(self.code):
+            return self.code[self.position + character_ahead]
         return None
 
     def make_tokens(self) -> list[Token]:
-        tokens = []
-        line = 1
+        tokens: list[Token] = []
+        line: int = 1
         while self.current_character is not None:
             if self.current_character in self.character_start_token:
                 tokens.append(self.make_command_multi_character())
@@ -128,6 +128,10 @@ class Lexer:
             return Token(TokenType.TT_FUNCTION.value, string)
         elif string[0] == string[-1] in ['"', "'"]:
             return Token(TokenType.TT_STRING.value, string)
+        elif string in ['True', 'False']:
+            return Token(TokenType.TT_BOOLEAN.value, bool(string))
+        elif string == 'None':
+            return Token(TokenType.TT_NONE.value, string)
         return Token(TokenType.TT_IDENTIFIER.value, string)
 
     def skip_token(self):
@@ -136,8 +140,6 @@ class Lexer:
             self.advance()
             while self.peek(2) is not None or self.current_character != '#' and self.peek() != '#' and self.peek(2) != '#':
                 self.advance()
-                if self.current_character is None:
-                    break
             self.advance()
             self.advance()
         else:

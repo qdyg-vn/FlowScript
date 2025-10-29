@@ -6,7 +6,7 @@ class Environment:
         variables (dict[str, dict[str, int | float]]): Mapping of scope names to variable dictionaries.
 
     Methods:
-        add_variable(name, value, parent='global'):
+        add_variable(value, name, parent='global'):
             Add or update a variable in the specified scope.
         lookup(variable, parent='global') -> int | float:
             Return the value of a variable from the specified scope.
@@ -16,7 +16,7 @@ class Environment:
     def __init__(self):
         self.variables = {'global': {}}
 
-    def add_variable(self, name: str, value, parent: str = 'global'):
+    def add_variable(self, value, name: str, parent: str = 'global'):
         self.variables[parent][name] = value
 
     def lookup(self, variable: str, parent: str = 'global') -> int | float:

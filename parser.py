@@ -4,47 +4,61 @@ from token_fscc import TokenType, NodeType
 
 class Parser:
     """
-    Recursive-descent parser that builds AST nodes using internal TokenType and NodeType.
+    Recursive-descent parser that consumes a mutable list of Token objects and produces AST Nodes.
 
-    Parses a mutable token list into:
-    - Scalar nodes for literals.
-    - Task nodes representing prefix operators with grouped operands.
-    - Multi-expression nodes when separated by semicolons within parentheses.
+    - Builds:
+        - Scalar nodes for literals and identifiers.
+        - Task nodes for prefix operators with parenthesized, optionally semicolon-separated operands.
+        - Multi-expression nodes when multiple task segments are grouped within the same parentheses.
+        - Variable-assignment structures as [values, variables].
 
-    Parameters:
-        tokens: In-place consumed list of Token objects.
+    Attributes:
+        tokens: In-place token buffer.
+        current_token: Cursor to the active token.
+        position: Current index within tokens.
+        operator_type: TokenType values considered operators.
+        value_type: TokenType values considered scalar/identifier-like.
+        operator: Scratch field for the active operator.
 
     Methods:
-        parse() -> list[Node]: Returns a list of parsed top-level expressions.
-        parse_expression() -> Node: Parses a single expression per the operator/operand rules.
-        advance(): Moves to the next token.
-        peek(): Returns the upcoming token without consuming it.
+        parse() -> list[Node]: Parses top-level expressions until input is exhausted.
+        parse_expression() -> Node: Parses a single expression (scalar or operator-led task/multi-expr).
+        variable_assignment_parser() -> list[list[Node]]: Parses values and variable targets.
+        advance(): Moves the cursor forward.
+        peek(token_ahead: int = 1): Peeks ahead without consuming.
 
     Raises:
-        SyntaxError: If an operator is not followed by '(' or if parentheses are mismatched.
+        SyntaxError: When an operator is not followed by '(' or on mismatched parentheses.
     """
 
     def __init__(self, tokens):
         self.tokens = tokens
         self.current_token = None
         self.position = -1
-        self.operator_type = [TokenType.TT_PLUS.value, TokenType.TT_MINUS.value, TokenType.TT_MUL.value, TokenType.TT_DIV.value]
+        self.operator_type = (TokenType.TT_PLUS.value, TokenType.TT_MINUS.value, TokenType.TT_MUL.value, TokenType.TT_DIV.value)
+        self.value_type = (TokenType.TT_INT.value, TokenType.TT_FLOAT.value, TokenType.TT_IDENTIFIER.value, TokenType.TT_BOOLEAN.value, TokenType.TT_STRING.value, TokenType.TT_NONE.value)
         self.operator = None
 
     def advance(self):
         self.position += 1
         self.current_token = self.tokens[self.position] if self.position < len(self.tokens) else None
 
-    def peek(self):
-        return self.tokens[self.position + 1] if self.position + 1 < len(self.tokens) else None
+    def peek(self, token_ahead: int = 1):
+        if self.position + token_ahead < len(self.tokens):
+            return self.tokens[self.position + token_ahead]
+        else:
+            return None
 
-    def parse(self) -> list:
-        expressions = [self.parse_expression()]
+    def parse(self) -> list[Node]:
+        expressions = []
         while self.position < len(self.tokens) - 1:
-            expressions.append(self.parse_expression())
+            if self.peek().type in self.operator_type:
+                expressions.append(Node(NodeType.CALCULATION.value, self.parse_expression()))
+            elif self.peek().type in self.value_type:
+                expressions.append(Node(NodeType.VARIABLE_ASSIGNMENT.value, self.variable_assignment_parser()))
         return expressions
 
-    def parse_expression(self):
+    def parse_expression(self) -> Node:
         self.advance()
         if self.current_token is not None and self.current_token.type in self.operator_type:
             operator = self.current_token.value
@@ -68,3 +82,20 @@ class Parser:
                 return Node(NodeType.TASK_NODE.value, expr[1], expr[0])
         else:
             return Node(NodeType.SCALAR.value, self.current_token.value)
+
+    def variable_assignment_parser(self) -> list[list[Node]]:
+        self.advance()
+        values = [Node(NodeType.SCALAR.value, self.current_token.value)]
+        variables = []
+        while self.peek() and self.peek().type in self.value_type:
+            self.advance()
+            values.append(Node(NodeType.SCALAR.value, self.current_token.value))
+        self.advance()
+        while self.peek() and self.peek().type in (TokenType.TT_FUNCTION.value, TokenType.TT_IDENTIFIER.value):
+            self.advance()
+            variables.append(Node(NodeType.SCALAR.value, self.current_token.value))
+        if len(values) < len(variables):
+            raise "VariableError: too few values"
+        elif len(values) < len(variables):
+            raise "VariableError: too few variables"
+        return [values, variables]

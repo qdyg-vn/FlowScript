@@ -6,17 +6,17 @@ from token_fscc import NodeType
 
 class Transformer:
     """
-    AST transformer that expands task and multi-expression nodes into all combinations.
+    Transforms ASTs by enumerating all combinations produced by MULTI_EXPR and TASK_NODE children.
 
-    Methods:
-    - replace_node_in_ast(ast, index, item): Deep-copies ast and replaces args[index] with item.
-    - multi_expression(expr, ast, index, result): Expands a MULTI_EXPR child, appending substituted ASTs to result. If the child yields TASK_NODE results, each is expanded individually.
-    - transform_single(ast): Walks a single AST's args. For TASK_NODE children, recurses; for MULTI_EXPR, delegates to multi_expr. Returns a MULTI_EXPR node of expansions or the original ast if no changes.
-    - transform(ast): Batch variant for an iterable of ASTs, flattening per-item transform outputs into a single MULTI_EXPR node.
+    - replace_node_in_ast(ast, index, node): Deep-copies ast and substitutes the child at index.
+    - multi_expression(expression, ast, index, result): Expands a MULTI_EXPR child and appends substituted AST variants.
+    - transform_single(ast): Returns a MULTI_EXPR of expansions for one AST or the original when no expansion applies.
+    - variable_assignment_transform(ast): Pairs variables and values from a VARIABLE_ASSIGNMENT node into [var, value] lists.
+    - transform(ast): Processes a sequence of expressions, preserving CALCULATION variants and wrapping all outputs in a MULTI_EXPR.
 
     Notes:
-    - Uses copy.deepcopy to avoid mutating the original ASTs.
-    - Relies on Node and NodeType contracts where MULTI_EXPR aggregates expansions and TASK_NODE may expand into multiple alternatives.
+    - Uses copy.deepcopy to avoid in-place mutation.
+    - Relies on Node and NodeType semantics (MULTI_EXPR, TASK_NODE, CALCULATION, VARIABLE_ASSIGNMENT).
     """
 
     def replace_node_in_ast(self, ast: Node, index: int, node: Node):
@@ -33,7 +33,7 @@ class Transformer:
             else:
                 result.append(self.replace_node_in_ast(ast, index, child_results))
 
-    def transform_single(self, ast: Node):
+    def transform_single(self, ast: Node) -> Node:
         result = []
         for index, node in enumerate(ast.args):
             if node.type == NodeType.TASK_NODE.value:
@@ -45,9 +45,19 @@ class Transformer:
         else:
             return ast
 
+    def variable_assignment_transform(self, ast: Node) -> list[list[Node]]:
+        number_of_variables = len(ast.args[1])
+        result = []
+        for index in range(number_of_variables):
+            result.append([ast.args[0][index], ast.args[1][index]])
+        return result
+
     def transform(self, ast: list):
         results = []
         for expression in ast:
-            for result in self.transform_single(expression).args:
-                results.append(result)
+            if expression.type == NodeType.CALCULATION.value:
+                for result in self.transform_single(expression):
+                    results.append(Node(NodeType.CALCULATION.value, result))
+            elif expression.type == NodeType.VARIABLE_ASSIGNMENT.value:
+                results.append(Node(NodeType.VARIABLE_ASSIGNMENT.value, self.variable_assignment_transform(expression)))
         return Node(NodeType.MULTI_EXPR.value, results)

@@ -24,16 +24,12 @@ class TokenType(Enum):
 
     Members include character sets for letters and digits, and symbolic tokens
     for literals, punctuation, operators, delimiters, and identifiers, such as:
-    - ALPHABET_DOWN/ALPHABET_UP/DIGIT: character classes
     - TT_INT, TT_FLOAT, TT_STRING, TT_BOOLEAN, TT_NONE: literal types
     - TT_LPAREN, TT_RPAREN, TT_SEMICOLON, TT_COMMA, TT_UNDERSCORE: delimiters
     - TT_PLUS, TT_MINUS, TT_MUL, TT_DIV, TT_ARROW: operators
     - TT_FUNCTION, TT_IDENTIFIER: keywords and names
     """
 
-    ALPHABET_DOWN = 'abcdefghijklmnopqrstuvwxyz'
-    ALPHABET_UP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    DIGIT = '0123456789'
     TT_INT = 'INT'
     TT_FLOAT = 'FLOAT'
     TT_STRING = 'STRING'
@@ -55,17 +51,22 @@ class TokenType(Enum):
 
 class NodeType(Enum):
     """
-    Enumeration of node types.
+    Enumeration of node types used in the AST.
 
     Members:
-    - MULTI_EXPR: Node aggregating multiple expressions.
-    - TASK_NODE: Node representing an executable task.
-    - SCALAR: Node holding a scalar/atomic value.
+    - CALCULATION: Computation or evaluative expression node.
+    - MULTI_EXPR: Aggregates multiple expressions into a single node.
+    - SCALAR: Represents an atomic scalar value.
+    - TASK_NODE: Executable task node.
+    - VARIABLE_ASSIGNMENT: Variable binding or assignment node.
     """
 
-    MULTI_EXPR = 1
-    TASK_NODE = 2
+    CALCULATION = 1
+    MULTI_EXPR = 2
     SCALAR = 3
+    TASK_NODE = 4
+    VARIABLE_ASSIGNMENT = 5
+
 
 
 class Token:
