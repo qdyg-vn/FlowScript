@@ -76,15 +76,15 @@ None -> e           # e = None
 
 Print values directly using `-> print`:
 
-expression -> print
+value -> variable -> `..` -> print
 
 value -> print
 
 #### Examples:
 
 ```fscc
-0 -> print                    # Output: 0
-+(1, 2) -> print             # Output: 3
+0 -> print                                  # Output: 0
+True -> a -> print -> print -> c            # Output: 3
 ```
 
 ### Print with Intermediate Variables
@@ -102,15 +102,23 @@ value -> print
 ### Complex Expression with Variables
 
 ```fscc
-+(2, 3 -> x) -> print        # x=5, print 5
-*(x, 2 -> y) -> print        # y=10, print 10  
++(2, 3 -> x -> print)        # x=5, print 5
+*(x, 2 -> y -> print)        # y=10, print 10  
 /(y, x -> z -> print)        # z=2.0, print 2.0
 ```
 
 ### Batch Operations with Variables
 
 ```fscc
-+(1, 2; 3, 4 -> results) -> print  # results=[3, 7], print both
++(1, 2; 3, 4 -> results -> print)  # results=[3, 7], print both
+```
+
+### Assign variables and print simultaneously in a string
+
+```fscc
+True -> x -> y -> z -> print
+False -> print -> print
+0 -> x -> y -> z 
 ```
 
 ## Key Features Summary

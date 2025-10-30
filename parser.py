@@ -36,7 +36,7 @@ class Parser:
         self.current_token = None
         self.position = -1
         self.operator_type = (TokenType.TT_PLUS.value, TokenType.TT_MINUS.value, TokenType.TT_MUL.value, TokenType.TT_DIV.value)
-        self.value_type = (TokenType.TT_INT.value, TokenType.TT_FLOAT.value, TokenType.TT_IDENTIFIER.value, TokenType.TT_BOOLEAN.value, TokenType.TT_STRING.value, TokenType.TT_NONE.value)
+        self.value_type = (TokenType.TT_INT.value, TokenType.TT_FLOAT.value, TokenType.TT_IDENTIFIER.value, TokenType.TT_BOOLEAN.value, TokenType.TT_STRING.value, TokenType.TT_NONE.value, TokenType.TT_FUNCTION.value)
         self.operator = None
 
     def advance(self):
@@ -85,17 +85,16 @@ class Parser:
 
     def variable_assignment_parser(self) -> list[list[Node]]:
         self.advance()
-        values = [Node(NodeType.SCALAR.value, self.current_token.value)]
-        variables = []
-        while self.peek() and self.peek().type in self.value_type:
+        values_and_variables = [[Node(NodeType.SCALAR.value, self.current_token.value)]]
+        index = 0
+        while self.peek() and self.peek().type in self.value_type + (TokenType.TT_ARROW.value,):
             self.advance()
-            values.append(Node(NodeType.SCALAR.value, self.current_token.value))
+            if self.current_token.type != TokenType.TT_ARROW.value:
+                values_and_variables[index].append(Node(NodeType.SCALAR.value, self.current_token.value))
+            else:
+                index += 1
+                values_and_variables.append([])
         self.advance()
-        while self.peek() and self.peek().type in (TokenType.TT_FUNCTION.value, TokenType.TT_IDENTIFIER.value):
-            self.advance()
-            variables.append(Node(NodeType.SCALAR.value, self.current_token.value))
-        if len(values) < len(variables):
-            raise "VariableError: too few values"
-        elif len(values) < len(variables):
-            raise "VariableError: too few variables"
-        return [values, variables]
+        if len(set(len(list_variables) for list_variables in values_and_variables)) > 1:
+            raise ValueError("VariableError: too few values or variables")
+        return values_and_variables

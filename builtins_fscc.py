@@ -86,5 +86,6 @@ class BuiltinsFunction:
         if function in self.functions:
             self.functions[function](*args)
 
-    def print(self, *args):
+    @staticmethod
+    def print(*args):
         print(*args)

@@ -34,17 +34,12 @@ def main():
         raise Exception("No input file specified.")
     lexer = Lexer(code)
     tokens = lexer.make_tokens()
-    print("Lexer: ", tokens)
     parser = Parser(tokens)
     ast = parser.parse()
-    print("Parser: ", ast)
     transformer = Transformer()
     ast_transformed = transformer.transform(ast)
-    print("Transform: ", ast_transformed)
     executor = Executor()
-    result = executor.execute(ast_transformed)
-    return result
+    executor.execute(ast_transformed)
 
 if __name__ == '__main__':
-    result = main()
-    print("Result:", result)
+    main()

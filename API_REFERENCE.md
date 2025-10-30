@@ -91,23 +91,6 @@
 - `variable_assignment_execute()` - Handle batch assignments
 - `execute_arrow()` - Process arrow operations (print/store)
 
-## Built-in Modules
-
-### Operation
-
-**Arithmetic engine** - Performs mathematical operations
-
-**Supported Operations:**
-
-- `+` - Sum all numbers (empty → 0)
-- `-` - Subtract sequentially (empty → 0)  
-- `*` - Multiply all numbers (empty → 1)
-- `/` - Divide sequentially (empty → 0)
-
-**Methods:**
-
-- `calculate(operator, numbers)` → `int | float` - Execute operation
-
 ### Environment
 
 **Variable storage** - Manages scoped variable storage
@@ -118,5 +101,34 @@
 - Parent-child scope relationships
 
 **Methods:**
+
 - `add_variable(value, name, parent='global')` - Store variables
 - `lookup(variable, parent='global')` → `int | float` - Retrieve variables
+
+## Built-in Modules
+
+### Operation
+
+**Arithmetic engine** - Performs mathematical operations
+
+**Supported Operations:**
+
+- `+` - Sum all numbers (empty → 0)
+- `-` - Subtract sequentially (empty → 0)
+- `*` - Multiply all numbers (empty → 1)
+- `/` - Divide sequentially (empty → 0)
+
+**Methods:**
+
+- `calculate(operator, numbers)` → `int | float` - Execute operation
+
+### Print
+
+**Features:**
+
+* `variable -> print` - Print variable
+* `value -> print` - Print value
+
+**Methods:**
+
+* `print(*args)` - Print to terminal screen

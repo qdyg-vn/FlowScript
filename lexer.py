@@ -19,9 +19,9 @@ class Lexer:
         code (str): Original source text.
         position (int): Current index in code (-1 before the first advance).
         current_character (str | None): Current character or None at EOF.
-        token_map_single_character (dict[str, str]): Map of single-char lexemes to token types.
+        single_character (dict[str, str]): Map of single-char lexemes to token types.
         character_start_token (dict[str, str]): Starters for potentially multi-char tokens.
-        token_map_multi_characters (dict[str, str]): Map of multi-char lexemes to token types.
+        multi_characters (dict[str, str]): Map of multi-char lexemes to token types.
 
     Methods:
         advance(): Move to the next character.
@@ -41,7 +41,7 @@ class Lexer:
         self.code = code
         self.position = -1
         self.current_character = None
-        self.token_map_single_character = {
+        self.single_character = {
             '+': TokenType.TT_PLUS.value,
             '-': TokenType.TT_MINUS.value,
             '*': TokenType.TT_MUL.value,
@@ -53,13 +53,13 @@ class Lexer:
         self.character_start_token = {
             '-': TokenType.TT_MINUS.value
         }
-        self.token_map_multi_characters = {
+        self.multi_characters = {
             '->': TokenType.TT_ARROW.value,
         }
         self.advance()
 
-    def advance(self):
-        self.position += 1
+    def advance(self, character_ahead: int = 1):
+        self.position += character_ahead
         self.current_character = self.code[self.position] if self.position < len(self.code) else None
 
     def peek(self, character_ahead: int = 1) -> str | None:
@@ -69,12 +69,12 @@ class Lexer:
 
     def make_tokens(self) -> list[Token]:
         tokens: list[Token] = []
-        line: int = 1
+        line = 1
         while self.current_character is not None:
             if self.current_character in self.character_start_token:
                 tokens.append(self.make_command_multi_character())
-            if self.current_character in self.token_map_single_character:
-                tokens.append(Token(self.token_map_single_character[self.current_character], self.current_character))
+            if self.current_character in self.single_character:
+                tokens.append(Token(self.single_character[self.current_character], self.current_character))
                 self.advance()
             elif self.current_character in CharacterSets.ALPHABET_DOWN.value + CharacterSets.ALPHABET_UP.value:
                 tokens.append(self.make_string())
@@ -93,14 +93,14 @@ class Lexer:
 
     def make_command_multi_character(self) -> Token:
         command = self.current_character + self.peek()
-        if command in self.token_map_multi_characters:
-            self.advance()
-            self.advance()
-            return Token(self.token_map_multi_characters[command], command)
+        token_type = self.multi_characters.get(command)
+        if token_type is not None:
+            self.advance(2)
+            return Token(token_type, command)
         else:
             command = self.current_character
             self.advance()
-            return Token(self.token_map_single_character[command], command)
+            return Token(self.single_character.get(command), command)
 
     def make_number(self) -> Token:
         number = ''
@@ -136,12 +136,10 @@ class Lexer:
 
     def skip_token(self):
         if self.peek() == self.peek(2) == '#':
-            self.advance()
-            self.advance()
+            self.advance(2)
             while self.peek(2) is not None or self.current_character != '#' and self.peek() != '#' and self.peek(2) != '#':
                 self.advance()
-            self.advance()
-            self.advance()
+            self.advance(2)
         else:
             while self.peek() != '\n' and self.current_character is not None:
                 self.advance()

@@ -25,7 +25,7 @@ python main.py <file_name>.fscc
 
 ### Example:
 
-```python
+```bash
 python main.py main.fscc
 ```
 

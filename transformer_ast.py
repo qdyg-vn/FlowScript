@@ -19,7 +19,7 @@ class Transformer:
     - Relies on Node and NodeType semantics (MULTI_EXPR, TASK_NODE, CALCULATION, VARIABLE_ASSIGNMENT).
     """
 
-    def replace_node_in_ast(self, ast: Node, index: int, node: Node):
+    def replace_node_in_ast(self, ast: Node, index: int, node: Node) -> Node:
         ast = copy.deepcopy(ast)
         ast.args[index] = node
         return ast
@@ -45,19 +45,20 @@ class Transformer:
         else:
             return ast
 
-    def variable_assignment_transform(self, ast: Node) -> list[list[Node]]:
-        number_of_variables = len(ast.args[1])
-        result = []
-        for index in range(number_of_variables):
-            result.append([ast.args[0][index], ast.args[1][index]])
+    def variable_assignment(self, ast: Node) -> list[list[Node]]:
+        number_of_values = len(ast.args[0])
+        result = [[] for _ in range(number_of_values)]
+        for current in ast:
+            for index in range(number_of_values):
+                result[index].append(current[index])
         return result
 
-    def transform(self, ast: list):
+    def transform(self, ast: list) -> Node:
         results = []
         for expression in ast:
             if expression.type == NodeType.CALCULATION.value:
                 for result in self.transform_single(expression):
                     results.append(Node(NodeType.CALCULATION.value, result))
             elif expression.type == NodeType.VARIABLE_ASSIGNMENT.value:
-                results.append(Node(NodeType.VARIABLE_ASSIGNMENT.value, self.variable_assignment_transform(expression)))
+                results.append(Node(NodeType.VARIABLE_ASSIGNMENT.value, self.variable_assignment(expression)))
         return Node(NodeType.MULTI_EXPR.value, results)

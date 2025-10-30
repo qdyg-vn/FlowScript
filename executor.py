@@ -38,7 +38,7 @@ class Executor:
                 else:
                     all_results.append(results)
             elif command.type == NodeType.VARIABLE_ASSIGNMENT.value:
-                self.variable_assignment_execute(command)
+                self.variable_assignment(command)
         return all_results
 
     def execute_single_command(self, ast) -> int | float | list:
@@ -72,9 +72,10 @@ class Executor:
         else:
             return self.operation.calculate(operator, values[0])
 
-    def variable_assignment_execute(self, values_and_variables):
-        for item in values_and_variables:
-            self.execute_arrow(item[0].args, item[1].args)
+    def variable_assignment(self, values_and_variables):
+        for current in values_and_variables:
+            for item in current[1:]:
+                self.execute_arrow(current[0].args, item.args)
 
     def execute_arrow(self, values, command: str):
         if command == 'print':
