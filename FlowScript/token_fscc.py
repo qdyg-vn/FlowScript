@@ -68,7 +68,6 @@ class NodeType(Enum):
     VARIABLE_ASSIGNMENT = 5
 
 
-
 class Token:
     """
     Lightweight token for lexers/parsers, carrying a type and optional value.

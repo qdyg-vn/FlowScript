@@ -1,7 +1,7 @@
 import copy
 
-from node_fscc import Node
-from token_fscc import NodeType
+from .node_fscc import Node
+from .token_fscc import NodeType
 
 
 class Transformer:

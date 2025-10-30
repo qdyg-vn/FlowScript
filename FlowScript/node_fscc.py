@@ -1,4 +1,4 @@
-from token_fscc import NodeType
+from .token_fscc import NodeType
 
 
 class Node:
@@ -19,7 +19,7 @@ class Node:
         - Other composites: "[<arg1>, <arg2>, ...]".
     """
 
-    def __init__(self, node_type, args, command = None):
+    def __init__(self, node_type, args, command=None):
         self.type = node_type
         self.command = command
         self.args = args

@@ -15,18 +15,17 @@
 ## Installing
 
 ```bash
-git clone https://github.com/qdyg-vn/FlowScript
-cd FlowScript
+pip install flowscript-lang
 ```
 
 ## How to run fscc file?
 
-python main.py <file_name>.fscc
+fscc <file_name>.fscc
 
 ### Example:
 
 ```bash
-python main.py main.fscc
+fscc main.fscc
 ```
 
 ## Philosophy
@@ -36,6 +35,6 @@ Instead of worrying about variables and assignment, you focus on how data transf
 
 ## Documentation
 
-* [Syntax Guide](SYNTAX_GUIDE.md)
-* [API Reference](API_REFERENCE.md)
-* [License](LICENSE)
+* [Syntax Guide](https://github.com/qdyg-vn/FlowScript/blob/main/SYNTAX_GUIDE.md)
+* [API Reference](https://github.com/qdyg-vn/FlowScript/blob/main/API_REFERENCE.md)
+* [License](https://github.com/qdyg-vn/FlowScript/blob/main/LICENSE)

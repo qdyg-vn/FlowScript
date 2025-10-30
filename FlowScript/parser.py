@@ -1,6 +1,5 @@
-from node_fscc import Node
-from token_fscc import TokenType, NodeType
-
+from .token_fscc import TokenType, NodeType
+from .node_fscc import Node
 
 class Parser:
     """

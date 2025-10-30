@@ -1,6 +1,6 @@
-from builtins_fscc import *
-from environment import Environment
-from token_fscc import NodeType
+from .token_fscc import NodeType
+from .builtins_fscc import *
+from .environment import Environment
 
 
 class Executor:

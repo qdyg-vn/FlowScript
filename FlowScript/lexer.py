@@ -1,5 +1,5 @@
-from builtins_fscc import BuiltinsFunction
-from token_fscc import Token, TokenType, CharacterSets
+from .token_fscc import Token, TokenType, CharacterSets
+from .builtins_fscc import BuiltinsFunction
 
 
 class Lexer:
@@ -137,7 +137,8 @@ class Lexer:
     def skip_token(self):
         if self.peek() == self.peek(2) == '#':
             self.advance(2)
-            while self.peek(2) is not None or self.current_character != '#' and self.peek() != '#' and self.peek(2) != '#':
+            while self.peek(2) is not None or self.current_character != '#' and self.peek() != '#' and self.peek(
+                    2) != '#':
                 self.advance()
             self.advance(2)
         else:

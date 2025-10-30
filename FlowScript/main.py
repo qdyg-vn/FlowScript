@@ -1,10 +1,10 @@
 import sys
 
-from executor import Executor
-from transformer_ast import Transformer
-from lexer import Lexer
-from parser import Parser
-from read_file import reader
+from .transformer_ast import Transformer
+from .executor import Executor
+from .lexer import Lexer
+from .parser import Parser
+from .read_file import reader
 
 
 def main():
@@ -40,6 +40,7 @@ def main():
     ast_transformed = transformer.transform(ast)
     executor = Executor()
     executor.execute(ast_transformed)
+
 
 if __name__ == '__main__':
     main()

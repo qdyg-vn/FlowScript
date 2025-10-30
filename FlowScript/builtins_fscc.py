@@ -76,6 +76,7 @@ class Operation:
                 result /= number
         return result
 
+
 class BuiltinsFunction:
     def __init__(self):
         self.functions = {
