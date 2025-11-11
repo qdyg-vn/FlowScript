@@ -35,6 +35,6 @@ Instead of worrying about variables and assignment, you focus on how data transf
 
 ## Documentation
 
-* [Syntax Guide](https://github.com/qdyg-vn/FlowScript/blob/main/SYNTAX_GUIDE.md)
-* [API Reference](https://github.com/qdyg-vn/FlowScript/blob/main/API_REFERENCE.md)
-* [License](https://github.com/qdyg-vn/FlowScript/blob/main/LICENSE)
+* [Syntax Guide](SYNTAX_GUIDE.md)
+* [API Reference](API_REFERENCE.md)
+* [License](LICENSE)
