@@ -84,7 +84,7 @@ value -> print
 
 ```fscc
 0 -> print                                  # Output: 0
-True -> a -> print -> print -> c            # Output: 3
+True -> a -> print -> print -> c            # Output: True True
 ```
 
 ### Print with Intermediate Variables
