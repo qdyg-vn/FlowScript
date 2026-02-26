@@ -29,7 +29,7 @@ class Parser:
     def parser(self):
         result = []
         while self.peek() is not None:
-            result.append(self.wapper_arrow(self.peek()))
+            result.append(self.wrapper_arrow(self.peek()))
         return result
 
     def operation_collector(self):
@@ -53,7 +53,7 @@ class Parser:
             return Node(NodeType.LOAD, tok.value)
         return None
 
-    def wapper_arrow(self, tok: Token):
+    def wrapper_arrow(self, tok: Token):
         stations = [self.return_values(tok)]
         if self.peek() is None or self.peek().type != TokenType.ARROW:
             return stations[0]
