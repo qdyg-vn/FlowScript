@@ -25,7 +25,7 @@ class VirMac:
         match bytecode.type:
             case BytecodeType.LOAD:
                 self.stack_pointer += 1
-                if self.stack_pointer >= len(self.bytecodes):
+                if self.stack_pointer >= len(self.stack):
                     self.stack += [None] * 1024
                 self.stack[self.stack_pointer] = bytecode.operand
             case BytecodeType.STORE:
